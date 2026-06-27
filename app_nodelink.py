@@ -18,11 +18,11 @@ st.markdown("""
 
 # ====== GOOGLE FIREBASE CONFIGURATION (100% FREE) ======
 config = {
-    "apiKey": "YOUR_API_KEY_HERE",
-    "authDomain": "YOUR_PROJECT_ID.firebaseapp.com",
-    "databaseURL": "https://YOUR_PROJECT_ID.firebaseio.com",
-    "projectId": "YOUR_PROJECT_ID",
-    "storageBucket": "YOUR_PROJECT_ID.appspot.com",
+    "apiKey": "AIzaSyD-YourActualKeyHere123",
+    "authDomain": " nodelink-app.firebaseapp.com",
+    "databaseURL": "https://nodelink-app-default-rtdb.firebaseio.com",
+    "projectId": "nodelink-app",
+    "storageBucket":  "nodelink-app.appspot.com",
 }
 
 @st.cache_resource
