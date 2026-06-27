@@ -14,7 +14,7 @@ st.markdown("""
     .stButton>button { background-color: #128C7E !important; color: white !important; border-radius: 8px; }
     .stButton>button:hover { background-color: #075E54 !important; }
     </style>
-""", unsafe_view_html=True)
+""", unsafe_allow_html=True)
 
 # ====== GOOGLE FIREBASE CONFIGURATION (100% FREE) ======
 config = {
@@ -134,9 +134,9 @@ else:
                 for m_id in private_messages:
                     m = private_messages[m_id]
                     if m['sender'] == st.session_state.user_email:
-                        st.markdown(f"<div class='chat-bubble-user'><b>You ({m['time']}):</b><br>{m['text']}</div>", unsafe_view_html=True)
+                        st.markdown(f"<div class='chat-bubble-user'><b>You ({m['time']}):</b><br>{m['text']}</div>", unsafe_allow_html=True)
                     else:
-                        st.markdown(f"<div class='chat-bubble-friend'><b>{m['sender'].split('@')[0]} ({m['time']}):</b><br>{m['text']}</div>", unsafe_view_html=True)
+                        st.markdown(f"<div class='chat-bubble-friend'><b>{m['sender'].split('@')[0]} ({m['time']}):</b><br>{m['text']}</div>", unsafe_allow_html=True)
             else:
                 st.info("Abhi tak koi purani chat nahi hai. Pehla message bhejiye!")
 
