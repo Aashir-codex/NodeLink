@@ -4,13 +4,12 @@ import pyrebase
 # --- 1. CONFIGURATION & INITIALIZATION ---
 # Hardcoded configuration (Directly inserted)
 firebase_config = {
-    "apiKey": st.secrets["AIzaSyCHNL6hYcvQjfhh3LqZ8wX0uayvPa0vGYg"],
-    "authDomain": st.secrets["nodelink-2824.firebaseapp.com"],
-    "databaseURL": st.secrets["https://nodelink-app-default-rtdb.firebaseio.com"],
-    "projectId": st.secrets["nodelink-2824"],
-    "storageBucket":st.secrets["nodelink-2824.firebasestorage.app"]
+    "apiKey": st.secrets["FIREBASE_API_KEY"],
+    "authDomain": st.secrets["FIREBASE_AUTH_DOMAIN"],
+    "databaseURL": st.secrets["FIREBASE_DATABASE_URL"],
+    "projectId": st.secrets["FIREBASE_PROJECT_ID"],
+    "storageBucket": st.secrets["FIREBASE_STORAGE_BUCKET"]
 }
-
 # Initialize Database
 firebase = pyrebase.initialize_app(firebase_config)
 db = firebase.database()
