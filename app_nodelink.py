@@ -1,149 +1,86 @@
 import streamlit as st
-import time
-from datetime import datetime
+import pyrebase
 
-# Page Configuration for Node Link
-st.set_page_config(page_title="Node Link", page_icon="🔗", layout="centered")
+# --- 1. CONFIGURATION & INITIALIZATION ---
+# Hardcoded configuration (Directly inserted)
+firebase_config = {
+    "apiKey": st.secrets["AIzaSyCHNL6hYcvQjfhh3LqZ8wX0uayvPa0vGYg"],
+    "authDomain": st.secrets["nodelink-2824.firebaseapp.com"],
+    "databaseURL": st.secrets["https://nodelink-app-default-rtdb.firebaseio.com"],
+    "projectId": st.secrets["nodelink-2824"],
+    "storageBucket":st.secrets["nodelink-2824.firebasestorage.app"]
+}
 
-# Custom CSS styling to mimic a premium chat application theme
-st.markdown("""
-    <style>
-    .stApp { background-color: #f0f2f5; }
-    
-    /* Premium Green Header Banner */
-    .header-banner {
-        background-color: #008069;
-        color: white;
-        padding: 15px;
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        border-radius: 0px 0px 10px 10px;
-        margin-bottom: 20px;
-    }
-    
-    /* Elegant Chat Speech Bubbles */
-    .chat-bubble-sender {
-        background-color: #d9fdd3;
-        padding: 10px 15px;
-        border-radius: 10px 0px 10px 10px;
-        margin: 8px 0px;
-        max-width: 75%;
-        float: right;
-        clear: both;
-        box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-    }
-    .chat-bubble-receiver {
-        background-color: #ffffff;
-        padding: 10px 15px;
-        border-radius: 0px 10px 10px 10px;
-        margin: 8px 0px;
-        max-width: 75%;
-        float: left;
-        clear: both;
-        box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-    }
-    .time-stamp {
-        font-size: 10px;
-        color: #667781;
-        text-align: right;
-        margin-top: 3px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Initialize Database
+firebase = pyrebase.initialize_app(firebase_config)
+db = firebase.database()
 
-# ─── SESSION STATE MANAGEMENT ────────────────────────────────────────
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "phone_number" not in st.session_state:
-    st.session_state.phone_number = ""
-if "messages" not in st.session_state:
-    # Clean, generic welcome message data
-    st.session_state.messages = [
-        {"sender": "System Bot", "text": "Welcome to Node Link! Start chatting securely.", "time": "12:00 PM"},
-        {"sender": "You", "text": "Awesome, the interface looks incredibly clean!", "time": "12:01 PM"}
-    ]
-
-# ─── SCREEN 1: OTP PHONE LOGIN SCREEN ─────────────────────────────────
-if not st.session_state.logged_in:
-    st.markdown('<div class="header-banner">Node Link Authentication</div>', unsafe_allow_html=True)
-    st.subheader("Welcome to Node Link")
-    st.write("Enter your mobile phone number to log into your account securely.")
-    
-    phone = st.text_input("Phone Number", placeholder="+92 300 0000000")
-    
-    if st.button("Request OTP Verification Code"):
-        if len(phone) >= 10:
-            st.session_state.phone_number = phone
-            st.success("Verification Code '123456' generated for test session access!")
-        else:
-            st.error("Please enter a valid phone number setup format.")
-            
-    otp = st.text_input("Enter 6-Digit OTP Code", type="password", placeholder="**")
-    
-    if st.button("Verify & Open Node Link"):
-        if otp == "123456":
+# --- 2. AUTHENTICATION COMPONENT ---
+def render_login():
+    st.markdown("###  Node Link Authentication")
+    phone = st.text_input("Mobile Number")
+    otp = st.text_input("OTP Code", type="password")
+    if st.button("Login"):
+        if otp == "123456": # Development test code
             st.session_state.logged_in = True
-            st.success("Access authorized!")
-            time.sleep(0.5)
+            st.session_state.user = phone
             st.rerun()
         else:
-            st.error("Invalid Code. Use '123456' for instant access.")
+            st.error("Invalid OTP")
 
-# ─── SCREEN 2: MAIN MULTI-TAB MESSENGER INTERFACE ──────────────────────
-else:
-    st.markdown('<div class="header-banner">🔗  Node Link</div>', unsafe_allow_html=True)
+# --- 3. CHAT COMPONENT ---
+def render_chat(room_id):
+    st.markdown(f"### 💬 Room: {room_id}")
     
-    # Interface core Navigation tabs
-    tab_chats, tab_updates, tab_calls, tab_settings = st.tabs([
-        "💬 Chats", "🟢 Updates", "📞 Calls", "⚙️ Settings"
-    ])
+    # Fetch messages from Firebase
+    msgs = db.child("rooms").child(room_id).get().val()
     
-    # --- CLEAN MESSAGES STREAM TAB ---
-    with tab_chats:
-        st.caption(f"Connected Line: {st.session_state.phone_number}")
-        
-        chat_container = st.container()
-        with chat_container:
-            for msg in st.session_state.messages:
-                if msg["sender"] == "You":
-                    st.markdown(f'<div class="chat-bubble-sender">{msg["text"]}<div class="time-stamp">{msg["time"]} ✔️✔️</div></div>', unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div class="chat-bubble-receiver"><b>{msg["sender"]}:</b><br>{msg["text"]}<div class="time-stamp">{msg["time"]}</div></div>', unsafe_allow_html=True)
-        
-        st.write("")
-        
-        # Real-time message entry box
-        user_message = st.chat_input("Type a message to link...")
-        if user_message:
-            now = datetime.now().strftime("%I:%M %p")
-            st.session_state.messages.append({"sender": "You", "text": user_message, "time": now})
-            st.rerun()
+    if msgs:
+        for m in msgs.values():
+            st.chat_message(m["sender"]).write(m["text"])
             
-    # --- NEUTRAL STATUS UPDATES TAB ---
-    with tab_updates:
-        st.subheader("Status Updates")
-        st.write("✨ *My Status*")
-        st.caption("Share a live snapshot update with contacts")
-        st.divider()
-        st.write("💬 *Recent Contact Statuses*")
-        st.info("User 1 • 25 minutes ago")
-        st.info("User 2 • 3 hours ago")
-        st.info("User 3 • Yesterday")
+    # Input field
+    if prompt := st.chat_input("Type a message..."):
+        db.child("rooms").child(room_id).push({
+            "sender": st.session_state.user, 
+            "text": prompt
+        })
+        st.rerun()
 
-    # --- GENERIC CALL LOG TAB ---
-    with tab_calls:
-        st.subheader("Call Activity Log")
-        st.text("📞 User 1 (Incoming Audio) — Today, 7:55 PM")
-        st.text("📹 User 2 (Outgoing Video) — Yesterday, 11:36 AM")
-        st.text("📞 User 3 (Missed Audio Call) — June 25, 3:56 AM")
+# --- 4. SETTINGS COMPONENT ---
+def render_settings():
+    st.subheader("⚙️ Profile Settings")
+    st.write(f"Account: {st.session_state.user}")
+    if st.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
 
-    # --- PERSONAL INTERFACE SETTINGS TAB ---
-    with tab_settings:
-        st.subheader("Profile Customization")
-        st.text_input("Profile Display Username", value="Node Link User")
-        st.text_area("Profile Tagline Status", value="Available on Node Link Network 🚀")
+# --- 5. MAIN ORCHESTRATOR (ENTRY POINT) ---
+def main():
+    st.set_page_config(page_title="Node Link", layout="centered")
+    
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+
+    if not st.session_state.logged_in:
+        render_login()
+    else:
+        menu = st.sidebar.radio("Menu", ["Chats", "Settings"])
         
-        st.divider()
-        if st.button("Secure Logout From Application"):
-            st.session_state.logged_in = False
+        if menu == "Chats":
+            # --- Yahan change karein ---
+            st.sidebar.subheader("Private Chat")
+            target_user = st.sidebar.text_input("Friend's Phone Number")
+            
+            if target_user:
+                # Private ID banayein
+                participants = sorted([st.session_state.user, target_user])
+                room_id = f"priv_{participants[0]}_{participants[1]}"
+                
+                # Ab yahan aapka purana render_chat function call hoga
+                render_chat(room_id) 
+            else:
+                st.info("Enter a phone number to start a private chat.")
+        
+        else:
+            render_settings()
