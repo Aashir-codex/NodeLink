@@ -4,11 +4,11 @@ import pyrebase
 # --- 1. CONFIGURATION & INITIALIZATION ---
 # Hardcoded configuration (Directly inserted)
 firebase_config = {
-    "apiKey": st.secrets["FIREBASE_API_KEY"],
-    "authDomain": st.secrets["FIREBASE_AUTH_DOMAIN"],
-    "databaseURL": st.secrets["FIREBASE_DATABASE_URL"],
-    "projectId": st.secrets["FIREBASE_PROJECT_ID"],
-    "storageBucket": st.secrets["FIREBASE_STORAGE_BUCKET"]
+    "apiKey": "FIREBASE_API_KEY",
+    "authDomain" : "FIREBASE_AUTH_DOMAIN",
+    "databaseURL": "FIREBASE_DATABASE_URL",
+    "projectId": "FIREBASE_PROJECT_ID",
+    "storageBucket": "FIREBASE_STORAGE_BUCKET"
 }
 # Initialize Database
 firebase = pyrebase.initialize_app(firebase_config)
